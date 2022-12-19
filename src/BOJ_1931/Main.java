@@ -16,6 +16,9 @@ class Meeting implements Comparable<Meeting> {
 
     @Override
     public int compareTo(Meeting o) {
+        if (getEnd() == o.getEnd()) {
+            return getStart() - o.getStart(); // 끝나는 시간 같으면 시작시간 기준으로 오름차순
+        }
         return getEnd() - o.getEnd(); // 오름차순
     }
 
