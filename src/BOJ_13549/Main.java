@@ -31,6 +31,12 @@ public class Main {
 
             if (num == end) return dfs[end];
 
+
+            if (num * 2 <= 200000 && !visited[num * 2]) {
+                dfs[num * 2] = dfs[num];
+                visited[num * 2] = true;
+                q.add(num * 2);
+            }
             if (num - 1 >= 0 && !visited[num - 1]) {
                 dfs[num - 1] = dfs[num] + 1;
                 visited[num - 1] = true;
@@ -40,11 +46,6 @@ public class Main {
                 dfs[num + 1] = dfs[num] + 1;
                 visited[num + 1] = true;
                 q.add(num + 1);
-            }
-            if (num * 2 <= 200000 && !visited[num * 2]) {
-                dfs[num * 2] = dfs[num];
-                visited[num * 2] = true;
-                q.add(num * 2);
             }
         }
         return -1;
