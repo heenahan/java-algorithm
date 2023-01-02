@@ -1,13 +1,11 @@
 package BOJ_11501;
 
 import java.io.*;
-import java.util.List;
-import java.util.ArrayList;
-import java.util.Collections;
 
 public class Main {
 
     static int[] day;
+    static int[] after; // 자신을 포함해 뒤에서 가장 큰 수
 
     public static void main(String[] args) throws IOException {
         Main T = new Main();
@@ -17,9 +15,15 @@ public class Main {
         for (int i = 0; i < t; i++) {
             int n = Integer.parseInt(br.readLine());
             day = new int[n];
+            after = new int[n];
+            int max = Integer.MIN_VALUE;
 
             String[] input = br.readLine().split(" ");
-            for (int j = 0; j < n; j++) day[j] = Integer.parseInt(input[j]);
+            for (int j = n - 1; j >= 0; j--) { // 뒤에서 부터
+                day[j] = Integer.parseInt(input[j]);
+                if (day[j] > max) max = day[j];
+                after[j] = max;
+            }
 
             bw.write(T.solution(n).toString());
             bw.newLine();
@@ -29,22 +33,18 @@ public class Main {
         bw.close();
 
     }
-
+	
     public Long solution(int num) {
         long benefit = 0;
         int have = 0;
         for (int i = 0; i < num; i++) {
-            int max = day[i];
-            for (int j = i; j < num; j++) {
-                if (day[j] > max) max = day[j];
-            }
-            if (max > day[i]) { // 미래 주가가 오늘 주가보다 클 때
-                benefit -= day[i]; // 주식 매수
-                have++;
-            } else { // 아니면 전부 팜
-                benefit += day[i] * have;
-                have = 0;
-            }
+			if (day[i] == after[i]) { // 미래의 주가 중 현재 주가보다 큰 값이 없을 때 전부 팜
+				benefit += day[i] * have;
+				have = 0;
+			} else { // 아니면 삼
+				benefit -= day[i];
+				have++;
+			}
         }
         return benefit;
     }
