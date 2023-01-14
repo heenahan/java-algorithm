@@ -63,13 +63,32 @@ public class Main {
 		visited[shark_x][shark_y] = 1;
 		space[shark_x][shark_y] = 0;
 		q.add(new Node(shark_x, shark_y));
+		
 		int fish = 0; // 상어가 레벨업하고 먹은 물고기
-		int move = 0;
+		int move = 0; // 상어의 움직임
+		int next_x = Integer.MAX_VALUE; // 상어 다음 방문
+		int next_y = Integer.MAX_VALUE;
+		int level = Integer.MAX_VALUE;
 		
 		while (!q.isEmpty()) {
 			Node v = q.poll();
 			int x = v.getX();
 			int y = v.getY();
+			
+			if (shark_size > space[x][y] && space[x][y] != 0){ // 상어 사이즈보다 작은 물고기를 방문했다면
+				if (level > visited[x][y]) {
+					next_x = x;
+					next_y = y;
+					level = visited[x][y];
+				} else if (level == visited[x][y]) {
+					if (next_x > x || (next_x == x && next_y > y)) {
+						next_x = x;
+						next_y = y;
+						level = visited[x][y];
+					}
+				}
+				
+			}
 			
 			for (int i = 0; i < 4; i++) {
 				int nx = x + dx[i];
@@ -78,31 +97,34 @@ public class Main {
 				if (nx < 0 || ny < 0 || nx >= num || ny >= num) continue;
 				// 이미 방문했거나 물고기가 상어 사이즈보다 크다면 방문 못함
 				if (visited[nx][ny] > 0 || space[nx][ny] > shark_size) continue;
-				if (space[nx][ny] == shark_size || space[nx][ny] == 0) { // 상어 사이즈와 같다면 이동만 가능
-					Node next = new Node(nx, ny);
-					visited[nx][ny] = visited[x][y] + 1;
-					q.add(next);
-				} else { // 상어 사이즈보다 작다면 먹을 수 있는 물고기 중 가장 가까운 물고기이다.
-					move += visited[x][y]; // 여기까지 오는데 걸린 움직임 더함
-					fish++;
-					
-					if (shark_size == fish) {
-						shark_size++;
-						fish = 0;
-					}
-					
-					// 모두 초기화
-					q = new LinkedList<>();
-					visited = new int[num][num];
-					shark_x = nx;
-					shark_y = ny;
-					
-					visited[shark_x][shark_y] = 1;
-					space[shark_x][shark_y] = 0;
-					q.add(new Node(shark_x, shark_y));
-					
-					break; // 먹을 수 있는 물고기를 발견했으면 다음 방문 안함
+				
+				visited[nx][ny] = visited[x][y] + 1;
+				Node next = new Node(nx, ny);
+				q.add(next);
+			}
+			
+			if (q.isEmpty() && next_x < num && next_y < num) { // 모두 탐색했고 방문할 수 있는 물고기를 찾았을 때
+				move += level - 1;
+				space[next_x][next_y] = 0;
+				fish++;
+				
+				if (shark_size == fish) {
+					shark_size++;
+					fish = 0;
 				}
+				
+				visited = new int[num][num];
+				
+				shark_x = next_x;
+				shark_y = next_y;
+				
+				visited[shark_x][shark_y] = 1;
+				space[shark_x][shark_y] = 0;
+				q.add(new Node(shark_x, shark_y));
+				
+				next_x = Integer.MAX_VALUE;
+				next_y = Integer.MAX_VALUE;
+				level = Integer.MAX_VALUE;
 			}
 		}
 		
