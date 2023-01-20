@@ -6,7 +6,7 @@ public class Main {
 	
 	static char[][] board;
 	static int hole_x; // 구멍 위치
- 	static int hole_y;
+	static int hole_y;
 	static int[] dx = { 1, 0, -1, 0 }; // 하 오 상 왼
 	static int[] dy = { 0, 1, 0, -1 };
 	static int result = Integer.MAX_VALUE;
@@ -49,7 +49,6 @@ public class Main {
 	public void solution(int num, int[][] d) {
 		if (num == 10) return;
 		
-		int[][] next_d = new int[2][2];
 		int[][] priority = new int [4][2];
 		
 		if (d[0][0] == d[1][0]) { // 행이 같다
@@ -68,14 +67,15 @@ public class Main {
 				priority[2][0] = 1;
 			} else {
 				priority[0][0] = 1;
-				priority[2][0] = 1;
+				priority[2][1] = 1;
 			}
 		}
 		
 		for (int i = 0; i < 4; i++) {
 			// 우선순위 정해지지 않았다면
 			if (priority[i][0] == priority[i][1]) priority[i][1] = 1;
-			boolean[] isHole = new boolean[2];
+			boolean[] isHole = new boolean[2]; // 매번 다른 움직임으로 초기화
+			int[][] next_d = new int[2][2];
 			for (int j = 0; j < 2; j++) {
 				int color = priority[i][j];
 				int x = d[color][0];
@@ -98,9 +98,8 @@ public class Main {
 				next_d[color][0] = x;
 				next_d[color][1] = y;
 			}
-			if (isHole[0] && !isHole[1]) { // 빨간색 구슬 빠졌다면
+			if (isHole[0] && !isHole[1]) { // 빨간색 구슬만 빠졌다면 종료
 				result = Math.min(num + 1, result);
-				return;
 			} else if (!isHole[0] && !isHole[1]) solution(num + 1, next_d); // 둘 다 안빠졌으면 다음 움직임
 		}
 	}
