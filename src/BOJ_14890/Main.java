@@ -6,8 +6,8 @@ public class Main {
 	
 	static int num;
 	static int[][] road;
-	int[] ix = { 1, -num };
-	int[] iy = { -num, 1 };
+	int[] ix = { 1, -num + 1 };
+	int[] iy = { -num + 1, 1 };
 	int[] jx = { 0, 1 };
 	int[] jy = { 1, 0 };
 	
@@ -38,9 +38,9 @@ public class Main {
 			int x = 0; int y = 0;
 			while (x < num && y < num) {
 				int canBePut = 1; // 놓을 수 있는 길의 수
-				int haveToPut = 0; // 놓아야 하는 길의 수
+				int haveToPut = 0; // 놓아야 하는  길의 수
 				int before = road[x][y];
-				while (x < num - 1 && y < num - 1) {
+				while ((i == 1 && x < num - 1) || (i == 0 && y < num - 1)) {
 					x += jx[i]; y += jy[i]; // 행과 열은 크기가 2 이상
 					if (before == road[x][y]) { // 이전 높이와 같다면
 						if (haveToPut > 0) haveToPut--;
@@ -57,7 +57,7 @@ public class Main {
 						}
 					} else break;
 					before = road[x][y];
-					if ((x == num - 1 || y == num - 1) && haveToPut == 0) count++; // 끝까지 갔고 놓아야 하는 계단이 없다면
+					if (((i == 0 && y == num - 1) || (i == 1 && x == num - 1)) && haveToPut == 0) count++; // 끝까지 갔고 놓아야 하는 계단이 없다면
 				}
 				// 음수가 되지 않도록 함
 				x = Math.max(0, x + ix[i]); y = Math.max(0, y + iy[i]);
