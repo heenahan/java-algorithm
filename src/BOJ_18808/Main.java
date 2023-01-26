@@ -3,35 +3,9 @@ package BOJ_18808;
 import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.io.IOException;
-import java.util.List;
-import java.util.ArrayList;
-
-class Node {
-	private int x; private int y;
-	private boolean[][] sticker;
-	
-	public Node(int x, int y, boolean[][] sticker) {
-		this.x = x;
-		this.y = y;
-		this.sticker = sticker;
-	}
-	
-	public int getX() {
-		return x;
-	}
-	
-	public int getY() {
-		return y;
-	}
-	
-	public boolean[][] getSticker() {
-		return sticker;
-	}
-}
 
 public class Main {
 	
-	static List<Node> stickers = new ArrayList<>();
 	static boolean[][] notebook;
 	static int n; static int m;
 	
@@ -63,10 +37,14 @@ public class Main {
 					if (Integer.parseInt(input3[k]) == 1) sticker[j][k] = true;
 				}
 			}
-			stickers.add(new Node(x, y, sticker));
+			T.solution(x, y, sticker);
 		}
 		
-		System.out.println(T.solution());
+		int sum = 0;
+		for (boolean[] row : notebook) {
+			for (boolean b : row) if (b) sum++;
+		}
+		System.out.println(sum);
 		
 		br.close();
 	}
@@ -81,34 +59,22 @@ public class Main {
 		jy = new int[]{ 1, 0, -1, 0 };
 	}
 	
-	public int solution() {
-		int size = stickers.size();
+	public void solution(int x, int y, boolean[][] sticker) {
+		setXY(x, y);
 		
-		for (int i = 0; i < size; i++) { // 스티커의 개수만큼
-			Node v = stickers.get(i);
-			boolean[][] sticker = v.getSticker();
-			int x = v.getX(); int y = v.getY();
-			setXY(x, y);
-			
-			boolean flag = false;
-			for (int j = 0; j < 4; j++) {
-				for (int k = 0; k < n; k++) {
-					for (int r = 0; r < m; r++) {
-						// 올바르다 했으니 남은 행과 열이 스티커 사이즈 넘어가면 패스
-						if (j % 2 == 0 && (x > n - k || y > m - r)) continue;
-						if (j % 2 == 1 && (y > n - k || x > m - r)) continue;
-						if (flag = attach(k, r, j, x, y, sticker)) break;
-					}
-					if (flag) break;
+		boolean flag = false;
+		for (int i = 0; i < 4; i++) { // 4번 회전
+			for (int j = 0; j < n; j++) {
+				for (int k = 0; k < m; k++) {
+					// 올바르다 했으니 남은 행과 열이 스티커 사이즈 넘어가면 패스
+					if (i % 2 == 0 && (x > n - j || y > m - k)) continue;
+					if (i % 2 == 1 && (y > n - j || x > m - k)) continue;
+					if (flag = attach(j, k, i, x, y, sticker)) break;
 				}
-				if (flag) break; // 붙였으면 회전하지 않고 종료
+				if (flag) break;
 			}
+			if (flag) break; // 붙였으면 회전하지 않고 종료
 		}
-		int sum = 0;
-		for (boolean[] row : notebook) {
-			for (boolean b : row) if (b) sum++;
-		}
-		return sum;
 	}
 	
 	// 시작 회전, 스티커 크기, 스티커 모양
