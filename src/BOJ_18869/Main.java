@@ -4,7 +4,6 @@ import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
@@ -26,32 +25,28 @@ public class Main {
 			universe.add(u);
 		}
 		
-		System.out.println(T.solution(universe));
+		System.out.println(T.solution(universe, n, m));
 		
 		br.close();
 	}
 	
-	public int solution(List<List<Integer>> universe) {
+	public int solution(List<List<Integer>> universe, int n, int m) {
 		int count = 0;
-		List<List<Integer>> sortUniverse = new ArrayList<>();
-		for (int i = 0; i < universe.size(); i++) { // 모든 리스트 정렬
-			List<Integer> sortList = universe.get(i).stream().sorted().collect(Collectors.toList());
-			sortUniverse.add(sortList);
+		List<StringBuilder> compression = new ArrayList<>(); // 좌표 압축
+		for (int i = 0; i < n; i++) { // 모든 리스트 정렬
+			List<Integer> sortList = new ArrayList<>(universe.get(i));
+			Collections.sort(sortList);
+			StringBuilder sb = new StringBuilder();
+			for (int j = 0; j < m; j++) { // 정렬된 리스트에서 위치를 찾음
+				int v = Collections.binarySearch(sortList, universe.get(i).get(j));
+				sb.append(v);
+			}
+			compression.add(sb);
 		}
-		for (int i = 0; i < universe.size(); i++) {
-			List<Integer> u = universe.get(i);
-			for (int j = i + 1; j < universe.size(); j++) {
-				List<Integer> compare = universe.get(j);
-				boolean fail = false;
-				for (int k = 0; k < u.size(); k++) {
-					int v = Collections.binarySearch(sortUniverse.get(i), u.get(k));
-					int cv = Collections.binarySearch(sortUniverse.get(j), compare.get(k));
-					if (v != cv) {
-						fail = true;
-						break;
-					}
-				}
-				if (!fail) count++;
+		for (int i = 0; i < n; i++) {
+			for (int j = i + 1; j < n; j++) {
+				// 시간초과를 줄이기 위해 m 만큼 돌면서 구하는게 아닌 stringbuilder로 만들어서 비교
+				if (compression.get(i).compareTo(compression.get(j)) == 0) count++;
 			}
 		}
 		return count;
