@@ -8,6 +8,7 @@ import java.util.Queue;
 
 class Node {
 	private int x; private int y;
+	private int broken; // 부순 벽의 갯수
 	
 	public Node(int x, int y) {
 		this.x = x;
