@@ -1,8 +1,6 @@
 package 이진수_정렬;
 
-import java.util.Arrays;
-import java.util.Comparator;
-import java.util.PriorityQueue;
+import java.util.*;
 
 class Bit {
     private int count;
@@ -25,17 +23,20 @@ class Bit {
 public class Solution {
 
     public int[] solution(int[] nums){
-        int[] answer = new int[nums.length];
-        PriorityQueue<Bit> queue = new PriorityQueue<>(Comparator.comparing(Bit::getCount)
-            .thenComparing(Bit::getNum));
+        List<Bit> bits = new ArrayList<>();
         for (int num : nums) {
-            var count = Integer.bitCount(num);
-            queue.add(new Bit(count, num));
+            int temp = num;
+            int count = 0;
+            while (temp > 0) {
+                if (temp % 2 == 1) count++;
+                temp /= 2;
+            }
+            bits.add(new Bit(count, num));
         }
-        for (int i = 0; i < nums.length; i++) {
-            answer[i] = queue.poll().getNum();
-        }
-        return answer;
+        return bits.stream()
+            .sorted(Comparator.comparing(Bit::getCount).thenComparing(Bit::getNum))
+            .mapToInt(Bit::getNum)
+            .toArray();
     }
 
     public static void main(String[] args) {
