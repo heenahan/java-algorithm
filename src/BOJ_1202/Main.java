@@ -2,7 +2,6 @@ package BOJ_1202;
 
 import java.io.*;
 import java.util.*;
-import java.util.stream.Collectors;
 
 class Jewerly {
 
@@ -43,40 +42,33 @@ public class Main {
             q.add(new Jewerly(m, v));
         }
         // 가방 정렬
-        List<Integer> bags = new ArrayList<>();
+        TreeMap<Integer, Integer> bags = new TreeMap<>();
         for (int i = 0; i < k; i++) {
             int b = Integer.parseInt(br.readLine());
-            bags.add(b);
+            bags.put(b, bags.getOrDefault(b, 0) + 1);
         }
-        bags = bags.stream()
-            .sorted()
-            .collect(Collectors.toList());
 
         long sum = 0;
         while(!q.isEmpty()) {
             Jewerly j = q.poll();
             int m = j.getM();
-            int idx = lowerBound(bags, m);
-            // 보석을 넣을 수 있는 가방이 존재하지 않음
-            if (idx >= bags.size()) {
+            if (bags.containsKey(m)) {
+                sum += j.getV();
+                bags.put(m, bags.get(m) - 1);
+                if (bags.get(m) == 0) {
+                    bags.remove(m);
+                }
                 continue;
             }
-            sum += j.getV();
-            bags.remove(idx);
-        }
-        System.out.println(sum);
-    }
-    // 첫번째로 등장하거나 같은 값이 없다면 처음으로 초과하는 값
-    private static int lowerBound(List<Integer> bags, int m) {
-        int st = 0; int ed = bags.size();
-        while (st < ed) {
-            int mid = (ed + st) / 2;
-            if (bags.get(mid) < m) {
-                st = mid + 1;
-            } else {
-                ed = mid;
+            Integer h = bags.higherKey(m);
+            if (Objects.nonNull(h)) {
+                sum += j.getV();
+                bags.put(h, bags.get(h) - 1);
+                if (bags.get(h) == 0) {
+                    bags.remove(h);
+                }
             }
         }
-        return st;
+        System.out.println(sum);
     }
 }
