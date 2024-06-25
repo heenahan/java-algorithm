@@ -1,83 +1,87 @@
 package BOJ_1261;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.LinkedList;
-import java.util.Queue;
+import java.util.*;
+import java.io.*;
 
-class Node {
-	private int x; private int y;
-	private int broken; // 부순 벽의 갯수
-	
-	public Node(int x, int y) {
+class XY {
+	private int x;
+	private int y;
+	private int wall;
+
+	public XY(int x, int y, int wall) {
 		this.x = x;
 		this.y = y;
+		this.wall = wall;
 	}
-	
+
 	public int getX() {
-		return x;
+		return this.x;
 	}
-	
+
 	public int getY() {
-		return y;
+		return this.y;
+	}
+
+	public int getWall() {
+		return this.wall;
 	}
 }
 
 public class Main {
-	
-	static int[][] maze;
-	static boolean[][] visited;
-	static int[][] broken; // 부순 벽의 개수
-	static int[] dx = { 1, 0, -1, 0 };
-	static int[] dy = { 0, 1, 0, -1 };
-	
+
+	private static int[] dx = { 0, -1, 0, 1 };
+	private static int[] dy = { -1, 0, 1, 0 };
+	private static int[][] wall;
+
 	public static void main(String[] args) throws IOException {
-		Main T = new Main();
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		
-		String[] input1 = br.readLine().split(" ");
-		int m = Integer.parseInt(input1[0]); // 행 열이 아닌 열 행으로 주어짐ㅠㅠ
-		int n = Integer.parseInt(input1[1]);
-		
-		maze = new int[n][m];
-		visited = new boolean[n][m];
-		broken = new int[n][m];
+
+		String[] mn = br.readLine().split(" ");
+		int m = Integer.parseInt(mn[0]);
+		int n = Integer.parseInt(mn[1]);
+
+		int[][] map = new int[n][m];
+		wall = new int[n][m]; // 벽을 최소 몇 개 부서야하는지
+
 		for (int i = 0; i < n; i++) {
-			String[] input2 = br.readLine().split("");
-			for (int j = 0; j < m; j++) maze[i][j] = Integer.parseInt(input2[j]);
+			Arrays.fill(wall[i], Integer.MAX_VALUE);
+			map[i] = Arrays.stream(br.readLine().split(""))
+				.mapToInt(Integer::parseInt)
+				.toArray();
 		}
-		System.out.println(T.solution(n, m));
-		
+
+		dijkstra(n, m, map);
+
+		System.out.print(wall[n - 1][m - 1]);
+
 		br.close();
 	}
-	
-	public int solution(int n, int m) {
-		Queue<Node> q = new LinkedList<>();
-		q.add(new Node(0, 0));
-		visited[0][0] = true;
-		
+
+	public static void dijkstra(int n, int m, int[][] map) {
+		PriorityQueue<XY> q = new PriorityQueue<>(Comparator.comparing(XY::getWall));
+		q.add(new XY(0, 0, 0));
+		wall[0][0] = 0;
+
 		while (!q.isEmpty()) {
-			Node v = q.poll();
-			int x = v.getX();
-			int y = v.getY();
-			int wall = broken[x][y];
-			
+			XY v = q.poll();
+			int x = v.getX(); int y = v.getY();
+			int w = v.getWall();
+
 			for (int i = 0; i < 4; i++) {
 				int nx = x + dx[i];
 				int ny = y + dy[i];
-				
 				if (nx < 0 || ny < 0 || nx >= n || ny >= m) continue;
-				// 이미 방문했고 발견한 부순 벽의 수보다 크다면
-				if (visited[nx][ny] && wall >= broken[nx][ny]) continue;
-				// 방문 안했다면 초기화
-				if (!visited[nx][ny]) broken[nx][ny] = wall;
-				else broken[nx][ny] = Math.min(wall, broken[nx][ny]);
-				if (maze[nx][ny] == 1) broken[nx][ny]++;
-				visited[nx][ny] = true;
-				q.add(new Node(nx, ny));
+				int nw = w;
+				// 벽이라면
+				if (map[nx][ny] == 1) {
+					nw++;
+				}
+				// 더 작은 횟수로 벽을 부술 수 있다면
+				if (wall[nx][ny] > nw) {
+					q.add(new XY(nx, ny, nw));
+					wall[nx][ny] = nw;
+				}
 			}
 		}
-		return broken[n - 1][m - 1];
 	}
 }
