@@ -41,30 +41,39 @@ public class Main {
         }
         // c를 기준으로 내림차순 정렬
         Collections.sort(apps, Comparator.comparing(App::getC)
-            .thenComparing(App::getM)
-            .reversed());
-        // dp[i][j] j 용량을 넘어서는 0부터 i번째 원소들의 부분집합 중 최솟값
-        int[][] dp = new int[N][M + 1];
-        for (int i = 1; i <= M; i++) {
-            App a = apps.get(0);
-            int ac = a.getC();
-            dp[0][i] = ac;
-        }
-        for (int i = 1; i < N; i++) {
-            App a = apps.get(i);
-            int am = a.getM(); int ac = a.getC();
-            for (int j = 1; j <= M; j++) {
-                // j를 초과했을 때
-                if (j > am) {
-                    // i를 뺀 것과 i를 추가한 것 중 더 작은 것
-                    dp[i][j] = Math.min(dp[i - 1][j], dp[i - 1][j - am] + ac);
-                    continue;
-                }
-                // j를 초과하기 전 i만 더하는게 최솟값임
-                dp[i][j] = ac;
+            .thenComparing(App::getM));
+        // dp[i][j] j 비용 이하이면서  0부터 i번째 원소들의 부분집합 중 최대 확보할 수 있는 메모리양
+        int[][] dp = new int[N][10001];
+        for (int i = 0; i < 10001; i++) {
+            App app = apps.get(0);
+            int am = app.getM(); int ac = app.getC();
+            if (i >= ac) {
+                dp[0][i] = am;
             }
         }
-        System.out.println(dp[N - 1][M]);
+        for (int i = 1; i < N; i++) {
+            App app = apps.get(i);
+            int am = app.getM(); int ac = app.getC();
+            for (int j = 0; j < 10001; j++) {
+                if (j >= ac) {
+                    // app[i]를 넣을지 안넣을지 결정
+                    dp[i][j] = Math.max(dp[i - 1][j], dp[i - 1][j - ac] + am);
+                    continue;
+                }
+                // app[i]를 넣으면 j를 초과하므로 넣지 않음
+                dp[i][j] = dp[i - 1][j];
+            }
+        }
+        int min = Integer.MAX_VALUE;
+        for (int i = 0; i < N; i++) {
+            for (int j = 0; j < 10001; j++) {
+                // M을 초과하면서 j가 최소일 경우
+                if (dp[i][j] >= M && min > j) {
+                    min = j;
+                }
+            }
+        }
+        System.out.println(min);
 
         sc.close();
     }
