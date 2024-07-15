@@ -1,66 +1,60 @@
 package BOJ_1707;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStreamReader;
-import java.util.ArrayList;
-import java.util.LinkedList;
-import java.util.List;
-import java.util.Queue;
+import java.util.*;
+import java.io.*;
 
 public class Main {
-	
+
 	public static void main(String[] args) throws IOException {
-		Main T = new Main();
 		BufferedReader br = new BufferedReader(new InputStreamReader(System.in));
-		
-		int test = Integer.parseInt(br.readLine());
-		for (int i = 0; i < test; i++) {
-			String[] input1 = br.readLine().split(" ");
-			int n = Integer.parseInt(input1[0]);
-			int m = Integer.parseInt(input1[1]);
-			
-			List<List<Integer>> arr = new ArrayList<>();
-			for (int j = 0; j <= n; j++) arr.add(new ArrayList<>());
-			for (int j = 0; j < m; j++) {
-				String[] input2 = br.readLine().split(" ");
-				int st = Integer.parseInt(input2[0]);
-				int ed = Integer.parseInt(input2[1]);
-				arr.get(st).add(ed);
+
+		int k = Integer.parseInt(br.readLine());
+		for (int i = 0; i < k; i++) {
+			String[] ve = br.readLine().split(" ");
+			int v = Integer.parseInt(ve[0]);
+			int e = Integer.parseInt(ve[1]);
+
+			Map<Integer, List<Integer>> graph = new HashMap<>();
+			for (int j = 0; j < e; j++) {
+				String[] ab = br.readLine().split(" ");
+				int a = Integer.parseInt(ab[0]);
+				int b = Integer.parseInt(ab[1]);
+
+				graph.putIfAbsent(a, new ArrayList<>());
+				graph.putIfAbsent(b, new ArrayList<>());
+
+				graph.get(a).add(b);
+				graph.get(b).add(a);
 			}
-			if (T.solution(n, arr)) System.out.println("YES");
-			else System.out.println("NO");
-		}
-		
-		br.close();
-	}
-	
-	public boolean solution(int num, List<List<Integer>> arr) {
-		// 정점을 모두 돈다.
-		for (int i = 1; i <= num; i++) {
-			Queue<Integer> q = new LinkedList<>();
-			int[] parent = new int[num + 1]; // 사이클을 판별하기 위함, 자신의 부모
-			q.add(i);
-			parent[i] = Integer.MAX_VALUE; // 루트의 부모는 최댓값
-			
-			while(!q.isEmpty()) {
-				int v = q.poll();
-				
-				for (int next : arr.get(v)) {
-					// 이번 bfs에서 자신의 조상으로 돌아갔다면 사이클이 생긴 것
-					if (parent[next] > 0) {
-						int p = parent[v];
-						while (p < Integer.MAX_VALUE) {
-							if (p == next) return false;
-							p = parent[p];
-						}
-					}
-					parent[next] = v; // 자신의 부모
-					q.add(next);
+			String answer = null;
+			int[] visited = new int[v + 1];
+			for (int j = 1; j <= v; j++) {
+				if (visited[j] <= 0) { // 아직 방문 안했다면
+					answer = bfs(graph, visited, j);
+					if (Objects.equals(answer, "NO")) break;
 				}
 			}
+			System.out.println(answer);
 		}
-		return true;
+
+		br.close();
 	}
-	
+
+	private static String bfs(Map<Integer, List<Integer>> graph, int[] visited, int st) {
+		Queue<Integer> q = new LinkedList<>();
+		q.add(st); visited[st] = 1;
+
+		while (!q.isEmpty()) {
+			int v = q.poll();
+			int vl = visited[v] % 2;
+
+			for (int nv : graph.getOrDefault(v, new ArrayList<>())) {
+				// 같은 레벨이면 NO
+				if (visited[nv] > 0 && visited[nv] % 2 == vl) return "NO";
+				if (visited[nv] > 0) continue;
+				q.add(nv); visited[nv] = visited[v] + 1;
+			}
+		}
+		return "YES";
+	}
 }
